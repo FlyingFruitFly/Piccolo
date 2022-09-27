@@ -36,9 +36,51 @@ namespace Piccolo
 
         if (physics_scene->isOverlap(m_rigidbody_shape, final_transform.getMatrix()))
         {
-            final_position = current_position;
-        }
+            // try step up
+            std::vector<PhysicsHitInfo> hits;
+            bool                        first = true;
+            float                       max_z = 0;
+            float                       max_step_up = 0.5;
+            final_transform.m_position.z += max_step_up;
+            if (physics_scene->sweep(
+                    m_rigidbody_shape, final_transform.getMatrix(), Vector3::NEGATIVE_UNIT_Z, max_step_up, hits))
+            {
+                for (auto& hit : hits)
+                {
+                    if (first || hit.hit_position.z > max_z)
+                    {
+                        max_z = hit.hit_position.z;
+                        first = false;
+                    }
+                }
+            }
 
+            // can step up
+            if (!first && max_z < max_step_up + final_position.z)
+            {
+                final_position.z = max_z;
+            }
+            // cannot
+            else
+            {
+                final_position = current_position;
+            }
+        }
         return final_position;
+    }
+
+    bool CharacterController::onGround(const Matrix4x4& transform)
+{
+        std::shared_ptr<PhysicsScene> physics_scene =
+            g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
+        ASSERT(physics_scene);
+        std::vector<PhysicsHitInfo> hits;
+        physics_scene->sweep(m_rigidbody_shape, transform, Vector3::NEGATIVE_UNIT_Z, 0.01, hits);
+        for (auto& hit : hits)
+        {
+            if (abs(hit.hit_normal.dotProduct(Vector3::UNIT_Z)) > 0.3)
+                return true;
+        }
+        return false;
     }
 } // namespace Piccolo

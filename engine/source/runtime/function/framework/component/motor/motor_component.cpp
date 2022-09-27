@@ -122,8 +122,8 @@ namespace Piccolo
             g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
         ASSERT(physics_scene);
 
-        if (m_motor_res.m_jump_height == 0.f)
-            return;
+//         if (m_motor_res.m_jump_height == 0.f)
+//             return;
 
         const float gravity = physics_scene->getGravity().length();
 
@@ -213,10 +213,18 @@ namespace Piccolo
         }
 
         // Piccolo-hack: motor level simulating jump, character always above z-plane
-        if (m_jump_state == JumpState::falling && final_position.z + m_desired_displacement.z <= 0.f)
+        if (m_jump_state != JumpState::rising)
         {
-            final_position.z = 0.f;
-            m_jump_state     = JumpState::idle;
+            TransformComponent* transform_component =
+                m_parent_object.lock()->tryGetComponent<TransformComponent>("TransformComponent");
+            if (m_controller->onGround(transform_component->getMatrix()))
+            {
+                m_jump_state = JumpState::idle;
+            }
+            else
+            {
+                m_jump_state = JumpState::falling;
+            }
         }
 
         m_is_moving       = (final_position - current_position).squaredLength() > 0.f;

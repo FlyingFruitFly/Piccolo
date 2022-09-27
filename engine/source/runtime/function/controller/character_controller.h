@@ -20,6 +20,7 @@ namespace Piccolo
         virtual ~Controller() = default;
 
         virtual Vector3 move(const Vector3& current_position, const Vector3& displacement) = 0;
+        virtual bool    onGround(const Matrix4x4& transform) = 0;
     };
 
     class CharacterController : public Controller
@@ -29,6 +30,7 @@ namespace Piccolo
         ~CharacterController() = default;
 
         Vector3 move(const Vector3& current_position, const Vector3& displacement) override;
+        bool    onGround(const Matrix4x4& transform) override;
 
     private:
         Capsule        m_capsule;
