@@ -63,3 +63,8 @@ if(NOT TARGET Jolt)
     endif()
 
 endif()
+
+add_subdirectory(core-math)
+
+set(core_math_inlcude ${THIRD_PARTY_DIR}/core-math)
+include_directories(${core_math_inlcude})

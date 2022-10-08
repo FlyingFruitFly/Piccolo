@@ -55,7 +55,7 @@ public:
 	inline bool					IsNormalized(float inTolerance = 1.0e-5f) const					{ return mValue.IsNormalized(inTolerance); }
 
 	/// If any component of this quaternion is a NaN (not a number)
-	inline bool					IsNaN() const													{ return mValue.IsNaN(); }
+	inline bool					IsNaN() const													{ return mValue.IsNaN(); } 
 	
 	///@}
 	///@name Get components

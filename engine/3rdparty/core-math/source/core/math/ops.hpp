@@ -297,6 +297,7 @@ namespace ss
             auto normalize(Vector2 const& a) noexcept -> Vector2;
             auto normalize(Vector3 const& a) noexcept -> Vector3;
             auto normalize(Vector4 const& a) noexcept -> Vector4;
+            auto normalize(Quaternion const& a) noexcept -> Quaternion;
 
             auto inverse(Matrix3 const& a) noexcept -> Matrix3;
             auto inverse(Matrix4 const& a) noexcept -> Matrix4;
@@ -323,6 +324,8 @@ namespace ss
             auto Euler_to_quat(Vector3 const& Euler_angles) noexcept -> Quaternion;
 
             auto quat_from_angle_axis(float angle, Vector3 axis) noexcept -> Quaternion;
+            bool isNaN(Vector3 const& vec);
+            bool isNaN(Quaternion const& quat);
         }
     }
 }

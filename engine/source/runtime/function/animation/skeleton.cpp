@@ -32,7 +32,8 @@ namespace Piccolo
         {
             const RawBone bone_definition = skeleton_definition.bones_map[i];
             Bone*         parent_bone     = find_by_index(m_bones, bone_definition.parent_index, i, m_is_flat);
-            m_bones[i].initialize(std::make_shared<RawBone>(bone_definition), parent_bone);
+            m_bones[i].initialize(
+                std::make_shared<RawBone>(bone_definition), parent_bone, bone_definition.parent_index);
         }
     }
 

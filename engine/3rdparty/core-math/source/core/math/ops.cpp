@@ -165,6 +165,16 @@ namespace ss
                     cj * sc - sj * cs,
                 };
             }
+
+            bool isNaN(Vector3 const& vec)
+            {
+                return std::isnan(vec.x) || std::isnan(vec.y) || std::isnan(vec.z);
+            }
+
+            bool isNaN(Quaternion const& quat)
+            {
+                return std::isnan(quat.x) || std::isnan(quat.y) || std::isnan(quat.z) || std::isnan(quat.w);
+            }
         }
     }
 }

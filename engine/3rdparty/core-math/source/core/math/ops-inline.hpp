@@ -340,6 +340,7 @@ namespace ss
             SS_MATH_OPS_INLINE auto normalize(Vector2 const& a) noexcept -> Vector2 { return from_glm(normalize(as_glm(a))); }
             SS_MATH_OPS_INLINE auto normalize(Vector3 const& a) noexcept -> Vector3 { return from_glm(normalize(as_glm(a))); }
             SS_MATH_OPS_INLINE auto normalize(Vector4 const& a) noexcept -> Vector4 { return from_glm(normalize(as_glm(a))); }
+            SS_MATH_OPS_INLINE auto normalize(Quaternion const& a) noexcept -> Quaternion { return from_glm(normalize(as_glm(a))); }
 
             SS_MATH_OPS_INLINE auto inverse(Matrix3 const& a) noexcept -> Matrix3 { return from_glm(inverse(as_glm(a))); }
             SS_MATH_OPS_INLINE auto inverse(Matrix4 const& a) noexcept -> Matrix4 { return from_glm(inverse(as_glm(a))); }

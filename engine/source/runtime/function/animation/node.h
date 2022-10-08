@@ -101,15 +101,15 @@ namespace Piccolo
 
     class Bone : public Node
     {
-        friend class LoDSkeleton;
-
+        friend class ssBone;
     protected:
         std::shared_ptr<RawBone> m_definition {};
+        size_t                   m_parent_id {0};
         // physics simulation and actor status
 
     public:
         Bone();
-        void initialize(std::shared_ptr<RawBone> definition, Bone* parent_bone);
+        void initialize(std::shared_ptr<RawBone> definition, Bone* parent_bone, size_t parent_id);
 
         size_t getID(void) const;
     };

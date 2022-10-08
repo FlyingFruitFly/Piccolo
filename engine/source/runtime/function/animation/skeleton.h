@@ -23,5 +23,7 @@ namespace Piccolo
         void            applyAnimation(const BlendStateWithClipData& blend_state);
         AnimationResult outputAnimationResult();
         void            resetSkeleton();
+
+        friend class ssSkeleton;
     };
 } // namespace Piccolo

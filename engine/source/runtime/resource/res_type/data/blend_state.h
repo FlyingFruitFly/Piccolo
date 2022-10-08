@@ -42,6 +42,7 @@ namespace Piccolo
         std::vector<float>       blend_weight;
         std::vector<std::string> blend_mask_file_path;
         std::vector<float>       blend_ratio;
+        std::string              ik_track_path;
     };
 
 } // namespace Piccolo

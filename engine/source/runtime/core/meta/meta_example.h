@@ -31,5 +31,5 @@ namespace Piccolo
 
     public:
         std::vector<Reflection::ReflectionPtr<BaseTest>> m_test_base_array;
-    };
+    }; 
 } // namespace Piccolo
