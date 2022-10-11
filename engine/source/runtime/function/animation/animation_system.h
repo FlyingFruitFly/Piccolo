@@ -22,12 +22,12 @@ namespace Piccolo
 
     public:
         static std::shared_ptr<SkeletonData>  tryLoadSkeleton(std::string file_path);
-        static std::shared_ptr<AnimationClip> tryLoadAnimation(std::string file_path);
+        static std::shared_ptr<AnimationClip> tryLoadAnimation(std::string file_path); 
         static std::shared_ptr<AnimSkelMap>   tryLoadAnimationSkeletonMap(std::string file_path);
         static std::shared_ptr<BoneBlendMask> tryLoadSkeletonMask(std::string file_path);
         static BlendStateWithClipData         getBlendStateWithClipData(const BlendState& blend_state);
 
-        AnimationManager() = default;
+        AnimationManager() = default; 
     };
 
 } // namespace Piccolo

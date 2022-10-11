@@ -34,7 +34,7 @@
                     0.76666998863220215
                   ],
                   "blend_clip_file_path": [
-                    "asset/objects/character/player/components/animation/data/W2_CrouchWalk_Aim_F_Loop_IP.animation_clip.json"
+                    "asset/objects/character/player/components/animation/data/idle.animation_clip.json"
                   ],
                   "blend_mask_file_path": [
                     "asset/objects/character/player/components/animation/data/anim.skeleton_mask.json",

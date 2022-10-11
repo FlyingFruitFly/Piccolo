@@ -89,4 +89,15 @@ namespace Piccolo
     { 
         return Quaternion(other.w, other.x, other.y, other.z); 
     }
+
+    Vector3    transformPositionToWorld(const Vector3& local_position, const Transform& global_transform)
+    {
+        return global_transform.m_rotation * local_position * global_transform.m_scale + global_transform.m_position;
+    }
+
+    Vector3 transformPositionToLocal(const Vector3& world_position, const Transform& global_transform)
+    {
+        return global_transform.m_rotation.inverse() *
+               ((world_position - global_transform.m_position) / global_transform.m_scale);
+    }
 } // namespace Piccolo

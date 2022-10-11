@@ -14,6 +14,7 @@ namespace Piccolo
     class ssBone;
     class Vector3;
     class Quaternion;
+    class Transform;
 
     template<typename T>
     size_t index(const std::vector<T>& vec, const T& value)
@@ -36,5 +37,7 @@ namespace Piccolo
     Vector3              convertFrom(const ss::math::Vector3& other);
     ss::math::Quaternion convertFrom(const Quaternion& other);
     Quaternion           convertFrom(const ss::math::Quaternion& other);
-
+    
+    Vector3 transformPositionToWorld(const Vector3& local_position, const Transform& global_transform);
+    Vector3 transformPositionToLocal(const Vector3& world_position, const Transform& global_transform);
 } // namespace Piccolo

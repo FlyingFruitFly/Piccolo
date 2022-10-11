@@ -326,6 +326,8 @@ namespace ss
             auto quat_from_angle_axis(float angle, Vector3 axis) noexcept -> Quaternion;
             bool isNaN(Vector3 const& vec);
             bool isNaN(Quaternion const& quat);
+
+            Quaternion getRotationTo(const Vector3 & origin, const Vector3 & dest, const Vector3 & fallbackAxis = Vector3(0,0,0));
         }
     }
 }

@@ -14,6 +14,18 @@ namespace Piccolo
             m_bones[i].resetToInitialPose();
     }
 
+    Bone* Skeleton::getBoneByName(const std::string& name) const 
+    {   
+        for (int i = 0; i < m_bone_count; i++)
+        {
+            if (m_bones[i].m_name == name)
+            {
+                return &m_bones[i];
+            }
+        }
+        return nullptr;
+    }
+
     void Skeleton::buildSkeleton(const SkeletonData& skeleton_definition)
     {
         m_is_flat = skeleton_definition.is_flat;

@@ -22,7 +22,7 @@ namespace Piccolo
         m_animation_res.blend_state.blend_ratio[0] -= floor(m_animation_res.blend_state.blend_ratio[0]);
 
         m_skeleton.applyAnimation(AnimationManager::getBlendStateWithClipData(m_animation_res.blend_state));
-        IKManager::resolve(m_skeleton, m_animation_res.blend_state);
+        IKManager::resolve(m_skeleton, m_animation_res.blend_state, m_parent_object);
         m_animation_res.animation_result = m_skeleton.outputAnimationResult();
     }
 

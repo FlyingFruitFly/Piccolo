@@ -23,6 +23,7 @@ namespace Piccolo
         void            applyAnimation(const BlendStateWithClipData& blend_state);
         AnimationResult outputAnimationResult();
         void            resetSkeleton();
+        Bone*           getBoneByName(const std::string& name) const;
 
         friend class ssSkeleton;
     };

@@ -175,6 +175,48 @@ namespace ss
             {
                 return std::isnan(quat.x) || std::isnan(quat.y) || std::isnan(quat.z) || std::isnan(quat.w);
             }
+
+            ss::math::type::Quaternion getRotationTo(const Vector3 & origin, const Vector3 & dest, const Vector3 & fallbackAxis)
+            {
+                Quaternion q;
+                Vector3 v0 = normalize(origin);
+                Vector3 v1 = normalize(dest);
+
+                float d = dot(v0,v1);
+                if (d >= 1.0f)
+                {
+                    return Quaternion(1,0,0,0);
+                }
+                if (d < 1e-6f - 1.0f)
+                {
+                    if (fallbackAxis != Vector3(0, 0, 0))
+                    {
+                        q = quat_from_angle_axis(pi, fallbackAxis);
+                    }
+                    else
+                    {
+                        Vector3 axis = cross(Vector3(1,0,0), origin);
+                        if (length(axis) < 0.0001f)
+                        {
+                            axis = cross(Vector3(0,1,0), origin);
+                        }
+                        normalize(axis);
+                        q = quat_from_angle_axis(pi, axis);
+                    }
+                }
+                else
+                {
+                    float s = sqrt((1+d)*2);
+                    float invs = 1/s;
+                    Vector3 c = cross(v0, v1);
+                    q.x = c.x*invs;
+                    q.y = c.y*invs;
+                    q.z = c.z*invs;
+                    q.w = s*0.5f;
+                    q = normalize(q);
+                }
+                return q;
+            }
         }
     }
 }
