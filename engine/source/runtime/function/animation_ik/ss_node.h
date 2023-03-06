@@ -27,6 +27,7 @@ namespace Piccolo
     protected:
 #endif
         ssNode* m_parent {nullptr};
+        std::vector<ssNode*> m_children;
 
         std::string m_name;
 
@@ -106,10 +107,10 @@ namespace Piccolo
 
     protected:
         // physics simulation and actor status
-        size_t m_id {0};
-        size_t m_parent_id {0};
 
     public:
+        size_t m_id {0};
+        size_t m_parent_id {0};
         ssBone();
 
         void   copyFrom(const Bone& bone);

@@ -20,6 +20,10 @@ namespace Piccolo
     void ssNode::setParent(ssNode* parent)
     {
         m_parent = parent;
+        if (parent != this)
+        {
+            parent->m_children.push_back(this);
+        }
         setDirty();
     }
     //-----------------------------------------------------------------------

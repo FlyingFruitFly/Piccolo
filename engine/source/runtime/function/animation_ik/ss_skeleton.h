@@ -17,6 +17,7 @@ namespace Piccolo
         int  getBoneCount() const;
         void copyFrom(Skeleton const& skeleton);
         void copyTo(Skeleton &skeleton);
+        ssBone* getBone(int i);
         ssBone* getBoneByName(const std::string& name) const;
     };
 }

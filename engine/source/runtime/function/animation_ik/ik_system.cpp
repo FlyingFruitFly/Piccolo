@@ -46,37 +46,54 @@ namespace Piccolo
         for (auto const& bone_name : foot_names)
         {
 
-            std::vector<PhysicsHitInfo> hits;
-            bool                        first       = true;
-            float                       max_z       = 0;
-            float                       max_step_up = 0.5;
+            if (false)
+            {
+                std::vector<PhysicsHitInfo> hits;
+                bool                        first       = true;
+                float                       max_z       = 0;
+                float                       max_step_up = 0.5;
 
-            Vector3 foot_position = skeleton.getBoneByName(bone_name)->_getDerivedPosition();
-            float   foot_height   = foot_position.z;
-            if (physics_scene->raycast(transformPositionToWorld(foot_position, object_transform) + Vector3(0,0,max_step_up), Vector3::NEGATIVE_UNIT_Z, 2.0f, hits))
-            {
-                Vector3 hit_position;
-                for (auto& hit : hits)
+                Vector3 foot_position = skeleton.getBoneByName(bone_name)->_getDerivedPosition();
+                float   foot_height   = foot_position.z;
+                if (physics_scene->raycast(transformPositionToWorld(foot_position, object_transform) +
+                                               Vector3(0, 0, max_step_up),
+                                           Vector3::NEGATIVE_UNIT_Z,
+                                           2.0f,
+                                           hits))
                 {
-                    if (first || hit.hit_position.z > max_z)
+                    Vector3 hit_position;
+                    for (auto& hit : hits)
                     {
-                        max_z = hit.hit_position.z;
-                        hit_position = hit.hit_position;
-                        first = false;
+                        if (first || hit.hit_position.z > max_z)
+                        {
+                            max_z        = hit.hit_position.z;
+                            hit_position = hit.hit_position;
+                            first        = false;
+                        }
                     }
+                    Vector3 hit_position_in_object = transformPositionToLocal(hit_position, object_transform);
+                    if (hit_position_in_object.z < m_root_displacement)
+                    {
+                        m_root_displacement = hit_position_in_object.z;
+                    }
+                    m_end_effectors[bone_name] = convertFrom(hit_position_in_object + Vector3(0, 0, foot_height));
                 }
-                Vector3 hit_position_in_object = transformPositionToLocal(hit_position, object_transform);
-                if (hit_position_in_object.z < m_root_displacement)
+                else
                 {
-                    m_root_displacement = hit_position_in_object.z;
+                    m_end_effectors[bone_name] = convertFrom(foot_position);
                 }
-                m_end_effectors[bone_name] = convertFrom(hit_position_in_object + Vector3(0, 0, foot_height));
-            }
-            else
-            {
-                m_end_effectors[bone_name] = convertFrom(foot_position);
             }
         }
+
+        m_end_effectors["biped L Foot"] =
+            convertFrom(skeleton.getBoneByName("biped L Foot")->_getDerivedPosition() + Vector3(0, 0, 0.5));
+        m_end_effectors["biped R Foot"] =
+            convertFrom(skeleton.getBoneByName("biped R Foot")->_getDerivedPosition() + Vector3(0, 0, 0.5));
+        m_end_effectors["biped L Hand"] =
+            convertFrom(skeleton.getBoneByName("biped L Hand")->_getDerivedPosition() + Vector3(0.7, 0, 0));
+        m_end_effectors["biped Head"] =
+            convertFrom(skeleton.getBoneByName("biped Head")->_getDerivedPosition());
+        
     }
 
     void IKManager::resolve(Skeleton& skeleton, const BlendState& blend_state, std::weak_ptr<GObject> parent_object) 
@@ -92,7 +109,7 @@ namespace Piccolo
         std::shared_ptr<IKConfig> ik_config = tryGetIKConfig(blend_state.ik_track_path);
         // do something
         setTarget(skeleton, object_transform, ik_config);
-        TwoBoneIKSolver solver;
+        PBDIKSolver solver;
         solver.calculateIKResult(*ik_config, converted_skeleton, m_root_displacement);
         //         ss::math::Quaternion test(0, 1, 0, 0);
 //         ssBone*              test_left_foot = converted_skeleton.getBoneByName("biped L Foot");

@@ -52,6 +52,12 @@ namespace Piccolo
             m_bones[i].copyTo(skeleton.m_bones[i]);
         }
     }
+
+    ssBone* ssSkeleton::getBone(int i) 
+    { 
+        return &m_bones[i]; 
+    }
+
     ssBone* ssSkeleton::getBoneByName(const std::string& name) const 
     {
         for (int i = 0; i < m_bone_count; i++)
