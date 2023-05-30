@@ -6,11 +6,14 @@
 #include "core/math/all.hpp"
 #include "function/animation/utilities.h"
 #include "runtime/function/animation_ik/ik_algorithm.h"
+#include <iostream>
+#include <ctime>
 
 namespace Piccolo
 {
     std::map<std::string, std::shared_ptr<IKConfig>> IKManager::m_ik_config_cache;
     std::map<std::string, ss::math::Vector3>         IKManager::m_end_effectors;
+    std::map<std::string, ss::math::Quaternion>      IKManager::m_stable_rotation;
     float                                            IKManager::m_root_displacement = 0.f;
 
     std::shared_ptr<IKConfig> IKManager::tryGetIKConfig(std::string ik_config_path)
@@ -86,13 +89,17 @@ namespace Piccolo
         }
 
         m_end_effectors["biped L Foot"] =
-            convertFrom(skeleton.getBoneByName("biped L Foot")->_getDerivedPosition() + Vector3(0, 0, 0.5));
+            convertFrom(skeleton.getBoneByName("biped L Foot")->_getDerivedPosition() + Vector3(0, -0.2, 0.4));
         m_end_effectors["biped R Foot"] =
-            convertFrom(skeleton.getBoneByName("biped R Foot")->_getDerivedPosition() + Vector3(0, 0, 0.5));
-        m_end_effectors["biped L Hand"] =
-            convertFrom(skeleton.getBoneByName("biped L Hand")->_getDerivedPosition() + Vector3(0.7, 0, 0));
-        m_end_effectors["biped Head"] =
-            convertFrom(skeleton.getBoneByName("biped Head")->_getDerivedPosition());
+            convertFrom(skeleton.getBoneByName("biped R Foot")->_getDerivedPosition() + Vector3(0, 0.2, 0.4));
+        m_stable_rotation["biped L Foot"] =
+            convertFrom(skeleton.getBoneByName("biped L Foot")->_getDerivedOrientation());
+        m_stable_rotation["biped R Foot"] =
+            convertFrom(skeleton.getBoneByName("biped R Foot")->_getDerivedOrientation());
+        //      m_end_effectors["biped L Hand"] =
+//            convertFrom(skeleton.getBoneByName("biped L Hand")->_getDerivedPosition() + Vector3(0.4, 0, 0.4));
+//        m_end_effectors["biped Head"] =
+//            convertFrom(skeleton.getBoneByName("biped Head")->_getDerivedPosition());
         
     }
 
@@ -109,7 +116,11 @@ namespace Piccolo
         std::shared_ptr<IKConfig> ik_config = tryGetIKConfig(blend_state.ik_track_path);
         // do something
         setTarget(skeleton, object_transform, ik_config);
-        PBDIKSolver solver;
+        XPBDIKSolver solver;
+
+        clock_t start, end;
+        start = clock();
+
         solver.calculateIKResult(*ik_config, converted_skeleton, m_root_displacement);
         //         ss::math::Quaternion test(0, 1, 0, 0);
 //         ssBone*              test_left_foot = converted_skeleton.getBoneByName("biped L Foot");
@@ -119,7 +130,37 @@ namespace Piccolo
 //             return;
 //         }
 //        test_left_foot->rotate(test);
+        for (auto& iter : m_stable_rotation)
+        {
+            ssBone* bone = converted_skeleton.getBoneByName(iter.first);
+            bone->setOrientation(inverse(bone->getParent()->_getDerivedOrientation()) * iter.second);
+            bone->m_derived_orientation = iter.second;
+        }
+
+        end = clock();
+        double time_used = (double)(end - start) / CLOCKS_PER_SEC;
+        static double time_sum  = 0;
+        time_sum += time_used;
+        static int test_cnt  = 0;
+        test_cnt             = (test_cnt + 1) % 100;
+        if (test_cnt == 0)
+        {
+            printf("%.4f s\n", time_sum/100);
+            time_sum = 0;
+        }
+        
 
         converted_skeleton.copyTo(skeleton);
+        static float max_delta=0.0f;
+        for (auto iter : m_end_effectors)
+        {
+            ss::math::Vector3 actural_position = converted_skeleton.getBoneByName(iter.first)->_getDerivedPosition();
+            float             now_delta        = length(iter.second - actural_position);
+            if (now_delta > max_delta)
+            {
+                max_delta = now_delta;
+                printf("%f\n", max_delta);
+            }
+        }
     }
 }

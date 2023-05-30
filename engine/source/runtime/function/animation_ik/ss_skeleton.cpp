@@ -45,7 +45,7 @@ namespace Piccolo
     {
         for (size_t i = 0; i < m_bone_count; i++)
         {
-            m_bones[i].update();
+            // m_bones[i].update();
         }
         for (size_t i = 0; i < m_bone_count; i++)
         {

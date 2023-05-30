@@ -14,6 +14,7 @@ namespace Piccolo
     public:
         // for only one skeleton, object space
         static std::map<std::string, ss::math::Vector3> m_end_effectors;
+        static std::map<std::string, ss::math::Quaternion> m_stable_rotation;
         static float                                    m_root_displacement;
 
         static std::shared_ptr<IKConfig> tryGetIKConfig(std::string ik_config_path);

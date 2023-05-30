@@ -64,13 +64,13 @@ namespace Piccolo
         root->translate(ss::math::Vector3(0,0,root_displacement));
     }
 
-    void PBDIKSolver::calculateIKResult(const IKConfig& ik_config, ssSkeleton& skeleton, float root_displacement) 
+    void XPBDIKSolver::calculateIKResult(const IKConfig& ik_config, ssSkeleton& skeleton, float root_displacement) 
     {
         // initialize data
         m_last_position.clear();
         m_position.clear();
         m_velocity.clear();
-        m_constraints.clear();
+        m_length_constraints.clear();
         m_invmass.clear();
         m_skeleton = &skeleton;
         m_bone_count = skeleton.getBoneCount();
@@ -81,15 +81,38 @@ namespace Piccolo
             m_last_position.push_back(bone->_getDerivedPosition());
             m_position.push_back(0.f);
             m_velocity.push_back(0.f);
-            m_invmass.push_back(1.f);
+         
+             if (bone->getName() == "biped L Calf" || bone->getName() == "biped R Calf")
+            {
+                 m_force.push_back(DirectionForce(ss::math::Vector3(0.f, -0.2, 0.2f), bone->getID()));
+            }
+
+            float k = 1.f;
+            if (bone->getName() == "biped L UpperArm" || bone->getName() == "biped R UpperArm" ||
+                bone->getName() == "biped L Forearm" || bone->getName() == "biped R Forearm" ||
+                bone->getName() == "biped L Hand" || bone->getName() == "biped R Hand" ||/*
+                bone->getName() == "biped L Thigh" || bone->getName() == "biped R Thigh" ||*/
+                bone->getName() == "biped L Calf" || bone->getName() == "biped R Calf" /*||
+                bone->getName() == "biped L Foot" || bone->getName() == "biped R Foot"*/)
+            {
+                m_invmass.push_back(1.f);
+            }
+            else
+            {
+                m_invmass.push_back(0.001f);
+            }
 
             if (bone->m_parent != bone)
             {
-                m_constraints.push_back(
-                    Constraint(1.0f, length(bone->getPosition()), bone->getID(), bone->m_parent_id));
+                m_length_constraints.push_back(
+                    LengthConstraint(k, length(bone->getPosition()), bone->getID(), bone->m_parent_id));
             }
         }
 
+        for (auto& force : m_force)
+        {
+            m_velocity[force.i] += force.m_force * m_invmass[force.i] * m_persudo_time;
+        }
         // simulate for a while of time
         for (int i = 0; i < m_moment_step; i++)
         {
@@ -97,9 +120,15 @@ namespace Piccolo
         }
 
         reachByRotation();
+        //for (int i = 0; i < m_bone_count; i++)
+        //{
+        //    skeleton.getBone(i)->m_derived_position = m_position[i];
+        //}
+        //skeleton.getBoneByName("biped L Toe0")->update();
+        //skeleton.getBoneByName("biped R Toe0")->update();
     }
 
-    void PBDIKSolver::processMoment() 
+    void XPBDIKSolver::processMoment() 
     { 
         for (int i = 0; i < m_bone_count; i++)
         {
@@ -109,13 +138,17 @@ namespace Piccolo
         {
             m_position[m_skeleton->getBoneByName(end_effector.first)->getID()] = end_effector.second;
         }
-        for (auto& constraint : m_constraints)
+        for (auto& constraint : m_length_constraints)
         {
             constraint.resetLambda();
         }
         for (int i = 0; i < m_iter_times; i++)
         {
             processIter();
+        }
+        for (auto& end_effector : IKManager::m_end_effectors)
+        {
+            m_position[m_skeleton->getBoneByName(end_effector.first)->getID()] = end_effector.second;
         }
         for (int i = 0; i < m_bone_count; i++)
         {
@@ -124,9 +157,9 @@ namespace Piccolo
         }
     }
 
-    void PBDIKSolver::processIter() 
+    void XPBDIKSolver::processIter() 
     {
-        for (auto& constraint : m_constraints)
+        for (auto& constraint : m_length_constraints)
         {
             constraint.updateData(*this);
 
@@ -147,7 +180,7 @@ namespace Piccolo
         }
     }
 
-    void PBDIKSolver::reachByRotation() 
+    void XPBDIKSolver::reachByRotation() 
     { 
         for (int i = 1; i < m_bone_count; i++)  // skip root bone
         {
@@ -174,7 +207,7 @@ namespace Piccolo
             }
 
             old_bone_direction = old_bone_direction / float(child_count) - bone->_getDerivedPosition();
-            new_bone_direction = new_bone_direction / float(child_count) - m_position[i];
+            new_bone_direction = new_bone_direction / float(child_count) - bone->_getDerivedPosition();
 
             ss::math::Quaternion parent_rotation = getRotationTo(old_bone_direction, new_bone_direction);
             bone->rotate(parent_rotation, ssNode::TransformSpace::OBJECT);
@@ -182,18 +215,22 @@ namespace Piccolo
         }
     }
 
-    Constraint::Constraint(float k, float default_length, int i, int j) :
+    LengthConstraint::LengthConstraint(float k, float default_length, int i, int j) :
         m_k(k), m_lambda(0),m_default_length(default_length), i(i), j(j), m_dx(0, 0, 0), m_constraint_result(0.f)
     {}
 
-    void Constraint::resetLambda() 
+    void LengthConstraint::resetLambda() 
     {
         m_lambda = 0.f;
     }
 
-    void Constraint::updateData(PBDIKSolver& solver) 
+    void LengthConstraint::updateData(XPBDIKSolver& solver) 
     { 
         m_dx = solver.m_position[i] - solver.m_position[j];
         m_constraint_result = length(m_dx) - m_default_length;
     }
+
+    DirectionForce::DirectionForce(ss::math::Vector3 force, int i) : m_force(force), i(i)
+    {}
+
 } // namespace Piccolo
